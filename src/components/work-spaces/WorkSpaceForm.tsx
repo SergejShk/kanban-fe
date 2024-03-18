@@ -9,12 +9,14 @@ import { IWorkSpaceFormValues } from '../../interfaces/workSpaces';
 
 interface IProps {
   isLoading: boolean;
+  error?: string;
   handleSaveClick: (formValues: IWorkSpaceFormValues) => void;
   handleCancelClick: () => void;
 }
 
 const WorkSpaceForm: FC<IProps> = ({
   isLoading,
+  error,
   handleSaveClick,
   handleCancelClick,
 }) => {
@@ -23,6 +25,7 @@ const WorkSpaceForm: FC<IProps> = ({
     handleSubmit,
     formState: { errors },
   } = useForm<IWorkSpaceFormValues>();
+
   return (
     <FormStyled onSubmit={handleSubmit(handleSaveClick)}>
       <Input
@@ -31,7 +34,7 @@ const WorkSpaceForm: FC<IProps> = ({
         label={<NameLabel>Name</NameLabel>}
         register={register}
         rules={{ required: { value: true, message: 'Required' } }}
-        error={errors.name}
+        error={(errors.name && errors.name.message) || error}
       />
 
       <ButtonWrapper>

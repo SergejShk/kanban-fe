@@ -52,7 +52,7 @@ const SignUp: FC = () => {
               message: 'Please enter a valid email',
             },
           }}
-          error={errors.email}
+          error={errors.email && errors.email.message}
         />
 
         <Input
@@ -66,7 +66,7 @@ const SignUp: FC = () => {
             minLength: { value: 7, message: 'Min length 7 characters' },
             maxLength: { value: 32, message: 'Max length 32 characters' },
           }}
-          error={errors.password}
+          error={errors.password && errors.password.message}
         />
 
         <Button disabled={isPending} $minHeight="42px">

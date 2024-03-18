@@ -1,6 +1,5 @@
 import { ReactNode } from 'react';
 import {
-  FieldError,
   FieldValues,
   Path,
   RegisterOptions,
@@ -15,7 +14,7 @@ type InputProps<TFormValues extends FieldValues> = {
   placeholder?: string;
   register?: UseFormRegister<TFormValues>;
   rules?: RegisterOptions;
-  error?: FieldError;
+  error?: string;
   disabled?: boolean;
 };
 
@@ -29,7 +28,7 @@ const Input = <TFormValues extends FieldValues>({
   error,
   disabled = false,
 }: InputProps<TFormValues>) => {
-  const hasError = !!(error && error.message);
+  const hasError = !!error;
 
   return (
     <InputWrapper>
@@ -46,7 +45,7 @@ const Input = <TFormValues extends FieldValues>({
           disabled={disabled}
         />
       </Label>
-      {hasError && <ErrorText role="alert">{error.message}</ErrorText>}
+      {hasError && <ErrorText role="alert">{error}</ErrorText>}
     </InputWrapper>
   );
 };

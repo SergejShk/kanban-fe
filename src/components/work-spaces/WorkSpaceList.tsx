@@ -2,30 +2,42 @@ import { FC } from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 
+import Loader from '../common/Loader';
+
 import { IWorkSpace } from '../../interfaces/workSpaces';
 
 interface IProps {
   workSpaces: IWorkSpace[];
+  isLoading: boolean;
   handleClickNewSpace: () => void;
 }
 
-const WorkSpaceList: FC<IProps> = ({ workSpaces, handleClickNewSpace }) => {
+const WorkSpaceList: FC<IProps> = ({
+  workSpaces,
+  isLoading,
+  handleClickNewSpace,
+}) => {
   return (
     <WorkSpaceListStyled>
+      {isLoading && <Loader />}
+
       {!!workSpaces.length &&
+        !isLoading &&
         workSpaces.map(workSpace => (
           <WorkSpaceItem key={workSpace.id}>
             <Card to={`${workSpace.id}`}>{workSpace.name}</Card>
           </WorkSpaceItem>
         ))}
 
-      <WorkSpaceItem>
-        <ButtonCard type="button" onClick={handleClickNewSpace}>
-          <svg width="50" height="50">
-            <use xlinkHref="/icons/sprite.svg#plus" />
-          </svg>
-        </ButtonCard>
-      </WorkSpaceItem>
+      {!isLoading && (
+        <WorkSpaceItem>
+          <ButtonCard type="button" onClick={handleClickNewSpace}>
+            <svg width="50" height="50">
+              <use xlinkHref="/icons/sprite.svg#plus" />
+            </svg>
+          </ButtonCard>
+        </WorkSpaceItem>
+      )}
     </WorkSpaceListStyled>
   );
 };

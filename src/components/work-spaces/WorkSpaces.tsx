@@ -6,6 +6,7 @@ import Modal from '../common/Modal';
 import WorkSpaceForm from './WorkSpaceForm';
 
 import { useCreateWorkSpace } from '../../hooks/services/work-spaces/useCreateWorkSpace';
+import { useWorkSpacesList } from '../../hooks/services/work-spaces/useWorkSpacesList';
 
 import { IWorkSpaceFormValues } from '../../interfaces/workSpaces';
 
@@ -16,13 +17,16 @@ const WorkSpaces: FC = () => {
     mutate: createNewWorkSpace,
     data: newWorkSpace,
     isPending: isPendingNewWorkSpace,
+    error: errorNewWorkSpace,
   } = useCreateWorkSpace();
+  const { data: workSpaces, isFetching, refetch } = useWorkSpacesList();
 
   useEffect(() => {
     if (!newWorkSpace?.data) return;
 
     onModalClose();
-  }, [newWorkSpace]);
+    refetch();
+  }, [newWorkSpace, refetch]);
 
   const onClickNewSpace = () => setIsOpenModal(true);
   const onModalClose = () => setIsOpenModal(false);
@@ -34,13 +38,18 @@ const WorkSpaces: FC = () => {
   return (
     <>
       <WorkSpacesStyled>
-        <WorkSpaceList workSpaces={[]} handleClickNewSpace={onClickNewSpace} />
+        <WorkSpaceList
+          workSpaces={workSpaces?.data || []}
+          isLoading={isFetching}
+          handleClickNewSpace={onClickNewSpace}
+        />
       </WorkSpacesStyled>
 
       {isOpenModal && (
         <Modal handleModalClose={onModalClose}>
           <WorkSpaceForm
             isLoading={isPendingNewWorkSpace}
+            error={errorNewWorkSpace?.response?.data}
             handleSaveClick={onCreateNewSpace}
             handleCancelClick={onModalClose}
           />
