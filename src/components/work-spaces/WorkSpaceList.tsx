@@ -6,9 +6,10 @@ import { IWorkSpace } from '../../interfaces/workSpaces';
 
 interface IProps {
   workSpaces: IWorkSpace[];
+  handleClickNewSpace: () => void;
 }
 
-const WorkSpaceList: FC<IProps> = ({ workSpaces }) => {
+const WorkSpaceList: FC<IProps> = ({ workSpaces, handleClickNewSpace }) => {
   return (
     <WorkSpaceListStyled>
       {!!workSpaces.length &&
@@ -19,7 +20,7 @@ const WorkSpaceList: FC<IProps> = ({ workSpaces }) => {
         ))}
 
       <WorkSpaceItem>
-        <ButtonCard type="button">
+        <ButtonCard type="button" onClick={handleClickNewSpace}>
           <svg width="50" height="50">
             <use xlinkHref="/icons/sprite.svg#plus" />
           </svg>
