@@ -22,7 +22,7 @@ export const router = createBrowserRouter([
         element: <Public component={SignUp} />,
       },
       {
-        path: 'home',
+        path: 'work-spaces',
         element: <Private component={Home} />,
       },
     ],

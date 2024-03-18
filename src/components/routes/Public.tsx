@@ -10,7 +10,7 @@ interface IProps {
 const Public: FC<IProps> = ({ component: Component }) => {
   const { auth } = useAuthContext();
 
-  return auth.email ? <Navigate to="/home" /> : <Component />;
+  return auth.email ? <Navigate to="/work-spaces" /> : <Component />;
 };
 
 export default Public;
