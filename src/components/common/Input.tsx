@@ -73,7 +73,7 @@ const Label = styled.label`
 
 const InputStyled = styled.input`
   border-radius: 4px;
-  border: 1px solid #b6d9ee;
+  border: 1px solid #6b7fca;
   background-color: #fff;
   font-size: 18px;
   line-height: normal;
@@ -84,12 +84,12 @@ const InputStyled = styled.input`
 
   &:hover,
   &:focus {
-    border-color: #4c758b;
+    border-color: #4762c6;
   }
 
   &:disabled:hover,
   &:disabled:focus {
-    border-color: #b6d9ee;
+    border-color: #6b7fca;
   }
 `;
 
