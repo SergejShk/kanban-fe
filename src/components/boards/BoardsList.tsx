@@ -27,12 +27,14 @@ const BoardsList: FC<IProps> = ({
         !isLoading &&
         boards.map(board => (
           <BoardItem key={board.id}>
-            {board.name}
-            <Actions
-              cardId={board.id}
-              handleEditClick={handleEditBoardClick}
-              handleDeletelick={handleDeleteBoardClick}
-            />
+            <BoardTitle>{board.name}</BoardTitle>
+            <BoardContent>
+              <Actions
+                cardId={board.id}
+                handleEditClick={handleEditBoardClick}
+                handleDeletelick={handleDeleteBoardClick}
+              />
+            </BoardContent>
           </BoardItem>
         ))}
     </BoardsListStyled>
@@ -51,12 +53,26 @@ const BoardsListStyled = styled.ul`
 `;
 
 const BoardItem = styled.li`
-  position: relative;
   width: 300px;
-  min-height: 500px;
   display: flex;
   flex-direction: column;
   flex: 0 0 30%;
+`;
+
+const BoardTitle = styled.p`
+  color: #fff;
+  font-size: 22px;
+  font-weight: 500;
+  text-align: center;
+`;
+
+const BoardContent = styled.div`
+  position: relative;
+  width: calc(100% - 40px);
+  min-height: 500px;
+  display: flex;
+  flex-direction: column;
   border-radius: 4px;
   background-color: #fff;
+  padding: 20px 20px 50px;
 `;

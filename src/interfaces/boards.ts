@@ -13,3 +13,9 @@ export interface INewBoardBody {
 export interface IBoardFormValues {
   name: string;
 }
+
+export interface IUpdateBoardBody {
+  id: number;
+  name: string;
+  workSpaceId: number;
+}

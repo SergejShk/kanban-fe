@@ -12,6 +12,7 @@ import { useCreateBoard } from '../../hooks/services/boards/useCreateBoard';
 import { useBoardsList } from '../../hooks/services/boards/useBoardsList';
 
 import { IBoard, IBoardFormValues } from '../../interfaces/boards';
+import { useUpdateBoard } from '../../hooks/services/boards/useUpdateBoard';
 
 const Boards: FC = () => {
   const params = useParams();
@@ -31,13 +32,26 @@ const Boards: FC = () => {
     isFetching,
     refetch,
   } = useBoardsList(Number(workSpaceId));
-  console.log(boards?.data);
+  const {
+    mutate: updateBoard,
+    data: updatedBoard,
+    isPending: isPendingUpdateBoard,
+    error: errorUpdateBoard,
+  } = useUpdateBoard();
+
   useEffect(() => {
     if (!newBoard?.data) return;
 
     onModalClose();
     refetch();
   }, [newBoard, refetch]);
+
+  useEffect(() => {
+    if (!updatedBoard?.data) return;
+
+    onModalClose();
+    refetch();
+  }, [updatedBoard, refetch]);
 
   const onCreateBoardClick = () => setIsOpenModal(true);
 
@@ -51,7 +65,11 @@ const Boards: FC = () => {
     createNewBoard({ ...formValues, workSpaceId: Number(workSpaceId) });
   };
   const onUpdateBoard = (formValues: IBoardFormValues) => {
-    console.log(formValues);
+    const workSpaceIdNumber = Number(workSpaceId);
+    if (!activeBoard || !workSpaceIdNumber) return;
+    const id = activeBoard.id;
+
+    updateBoard({ ...formValues, id, workSpaceId: workSpaceIdNumber });
   };
 
   const onEditBoardClick = (id: number) => {
@@ -82,8 +100,10 @@ const Boards: FC = () => {
         <Modal handleModalClose={onModalClose}>
           <BoardForm
             initialBoard={activeBoard}
-            isLoading={isPendingNewBoard}
-            error={errorNewBoard?.response?.data}
+            isLoading={isPendingNewBoard || isPendingUpdateBoard}
+            error={
+              errorNewBoard?.response?.data || errorUpdateBoard?.response?.data
+            }
             handleSaveClick={activeBoard ? onUpdateBoard : onCreateBoard}
             handleCancelClick={onModalClose}
           />
