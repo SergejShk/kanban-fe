@@ -7,11 +7,16 @@ import WorkSpaceForm from './WorkSpaceForm';
 
 import { useCreateWorkSpace } from '../../hooks/services/work-spaces/useCreateWorkSpace';
 import { useWorkSpacesList } from '../../hooks/services/work-spaces/useWorkSpacesList';
+import { useUpdateWorkSpace } from '../../hooks/services/work-spaces/useUpdateWorkSpace';
+import { useDeleteWorkSpace } from '../../hooks/services/work-spaces/useDeleteWorkSpace';
 
-import { IWorkSpaceFormValues } from '../../interfaces/workSpaces';
+import { IWorkSpace, IWorkSpaceFormValues } from '../../interfaces/workSpaces';
 
 const WorkSpaces: FC = () => {
   const [isOpenModal, setIsOpenModal] = useState(false);
+  const [activeWorkSpace, setActiveWorkSpace] = useState<
+    IWorkSpace | undefined
+  >(undefined);
 
   const {
     mutate: createNewWorkSpace,
@@ -20,6 +25,17 @@ const WorkSpaces: FC = () => {
     error: errorNewWorkSpace,
   } = useCreateWorkSpace();
   const { data: workSpaces, isFetching, refetch } = useWorkSpacesList();
+  const {
+    mutate: updateWorkSpace,
+    data: updatedWorkSpace,
+    isPending: isPendingUpdateWorkSpace,
+    error: errorUpdateWorkSpace,
+  } = useUpdateWorkSpace();
+  const {
+    mutate: deleteWorkSpace,
+    isPending: isPendingDeleteWorkSpace,
+    isSuccess,
+  } = useDeleteWorkSpace();
 
   useEffect(() => {
     if (!newWorkSpace?.data) return;
@@ -28,11 +44,45 @@ const WorkSpaces: FC = () => {
     refetch();
   }, [newWorkSpace, refetch]);
 
-  const onClickNewSpace = () => setIsOpenModal(true);
+  useEffect(() => {
+    if (!updatedWorkSpace?.data) return;
+
+    setActiveWorkSpace(undefined);
+    onModalClose();
+    refetch();
+  }, [updatedWorkSpace, refetch]);
+
+  useEffect(() => {
+    if (!isSuccess) return;
+
+    setActiveWorkSpace(undefined);
+    refetch();
+  }, [isSuccess, refetch]);
+
+  const onNewSpaceClick = () => setIsOpenModal(true);
+
+  const onEditClick = (id: number) => {
+    const selectedWorkSpace = workSpaces?.data.find(
+      workSpace => workSpace.id === id
+    );
+    setActiveWorkSpace(selectedWorkSpace);
+    setIsOpenModal(true);
+  };
+
+  const onDeleteClick = (id: number) => {
+    deleteWorkSpace(id);
+  };
+
   const onModalClose = () => setIsOpenModal(false);
 
   const onCreateNewSpace = (formValues: IWorkSpaceFormValues) => {
     createNewWorkSpace(formValues);
+  };
+
+  const onUpdateWorkSpace = (formValues: IWorkSpaceFormValues) => {
+    if (!activeWorkSpace) return;
+    const id = activeWorkSpace.id;
+    updateWorkSpace({ ...formValues, id });
   };
 
   return (
@@ -40,17 +90,25 @@ const WorkSpaces: FC = () => {
       <WorkSpacesStyled>
         <WorkSpaceList
           workSpaces={workSpaces?.data || []}
-          isLoading={isFetching}
-          handleClickNewSpace={onClickNewSpace}
+          isLoading={isFetching || isPendingDeleteWorkSpace}
+          handleNewSpaceClick={onNewSpaceClick}
+          handleEditSpaceClick={onEditClick}
+          handleDeleteSpaceClick={onDeleteClick}
         />
       </WorkSpacesStyled>
 
       {isOpenModal && (
         <Modal handleModalClose={onModalClose}>
           <WorkSpaceForm
-            isLoading={isPendingNewWorkSpace}
-            error={errorNewWorkSpace?.response?.data}
-            handleSaveClick={onCreateNewSpace}
+            initialWorkSpace={activeWorkSpace}
+            isLoading={isPendingNewWorkSpace || isPendingUpdateWorkSpace}
+            error={
+              errorNewWorkSpace?.response?.data ||
+              errorUpdateWorkSpace?.response?.data
+            }
+            handleSaveClick={
+              activeWorkSpace ? onUpdateWorkSpace : onCreateNewSpace
+            }
             handleCancelClick={onModalClose}
           />
         </Modal>

@@ -5,9 +5,10 @@ import styled from 'styled-components';
 import Input from '../common/Input';
 import { Button } from '../common/Button';
 
-import { IWorkSpaceFormValues } from '../../interfaces/workSpaces';
+import { IWorkSpace, IWorkSpaceFormValues } from '../../interfaces/workSpaces';
 
 interface IProps {
+  initialWorkSpace?: IWorkSpace;
   isLoading: boolean;
   error?: string;
   handleSaveClick: (formValues: IWorkSpaceFormValues) => void;
@@ -15,6 +16,7 @@ interface IProps {
 }
 
 const WorkSpaceForm: FC<IProps> = ({
+  initialWorkSpace,
   isLoading,
   error,
   handleSaveClick,
@@ -24,7 +26,9 @@ const WorkSpaceForm: FC<IProps> = ({
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<IWorkSpaceFormValues>();
+  } = useForm<IWorkSpaceFormValues>({
+    defaultValues: { name: initialWorkSpace?.name || '' },
+  });
 
   return (
     <FormStyled onSubmit={handleSubmit(handleSaveClick)}>

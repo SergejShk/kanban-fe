@@ -3,19 +3,24 @@ import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 
 import Loader from '../common/Loader';
+import Actions from '../common/Actions';
 
 import { IWorkSpace } from '../../interfaces/workSpaces';
 
 interface IProps {
   workSpaces: IWorkSpace[];
   isLoading: boolean;
-  handleClickNewSpace: () => void;
+  handleNewSpaceClick: () => void;
+  handleEditSpaceClick: (id: number) => void;
+  handleDeleteSpaceClick: (id: number) => void;
 }
 
 const WorkSpaceList: FC<IProps> = ({
   workSpaces,
   isLoading,
-  handleClickNewSpace,
+  handleNewSpaceClick,
+  handleEditSpaceClick,
+  handleDeleteSpaceClick,
 }) => {
   return (
     <WorkSpaceListStyled>
@@ -25,13 +30,20 @@ const WorkSpaceList: FC<IProps> = ({
         !isLoading &&
         workSpaces.map(workSpace => (
           <WorkSpaceItem key={workSpace.id}>
-            <Card to={`${workSpace.id}`}>{workSpace.name}</Card>
+            <Card to={`${workSpace.id}`}>
+              {workSpace.name}
+              <Actions
+                cardId={workSpace.id}
+                handleEditClick={handleEditSpaceClick}
+                handleDeletelick={handleDeleteSpaceClick}
+              />
+            </Card>
           </WorkSpaceItem>
         ))}
 
       {!isLoading && (
         <WorkSpaceItem>
-          <ButtonCard type="button" onClick={handleClickNewSpace}>
+          <ButtonCard type="button" onClick={handleNewSpaceClick}>
             <svg width="50" height="50">
               <use xlinkHref="/icons/sprite.svg#plus" />
             </svg>
@@ -62,6 +74,7 @@ const WorkSpaceItem = styled.li`
 `;
 
 const Card = styled(Link)`
+  position: relative;
   width: calc(100% - 20px);
   height: calc(100% - 20px);
   padding: 10px;

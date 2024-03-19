@@ -12,3 +12,8 @@ export interface IWorkSpaceFormValues {
 export interface INewWorkSpaceBody {
   name: string;
 }
+
+export interface IUpdateWorkSpaceBody {
+  id: number;
+  name: string;
+}
