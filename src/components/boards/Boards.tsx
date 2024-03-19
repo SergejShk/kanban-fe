@@ -10,9 +10,10 @@ import Modal from '../common/Modal';
 
 import { useCreateBoard } from '../../hooks/services/boards/useCreateBoard';
 import { useBoardsList } from '../../hooks/services/boards/useBoardsList';
+import { useUpdateBoard } from '../../hooks/services/boards/useUpdateBoard';
+import { useDeleteBoard } from '../../hooks/services/boards/useDeleteBoard';
 
 import { IBoard, IBoardFormValues } from '../../interfaces/boards';
-import { useUpdateBoard } from '../../hooks/services/boards/useUpdateBoard';
 
 const Boards: FC = () => {
   const params = useParams();
@@ -38,6 +39,11 @@ const Boards: FC = () => {
     isPending: isPendingUpdateBoard,
     error: errorUpdateBoard,
   } = useUpdateBoard();
+  const {
+    mutate: deleteBoard,
+    isPending: isPendingDeleteBoard,
+    isSuccess,
+  } = useDeleteBoard();
 
   useEffect(() => {
     if (!newBoard?.data) return;
@@ -52,6 +58,13 @@ const Boards: FC = () => {
     onModalClose();
     refetch();
   }, [updatedBoard, refetch]);
+
+  useEffect(() => {
+    if (!isSuccess) return;
+
+    setActiveBoard(undefined);
+    refetch();
+  }, [isSuccess, refetch]);
 
   const onCreateBoardClick = () => setIsOpenModal(true);
 
@@ -79,7 +92,7 @@ const Boards: FC = () => {
   };
 
   const onDeleteBoardClick = (id: number) => {
-    console.log(id);
+    deleteBoard(id);
   };
 
   return (
@@ -90,7 +103,7 @@ const Boards: FC = () => {
         </Button>
         <BoardsList
           boards={boards?.data || []}
-          isLoading={isFetching}
+          isLoading={isFetching || isPendingDeleteBoard}
           handleEditBoardClick={onEditBoardClick}
           handleDeleteBoardClick={onDeleteBoardClick}
         />
