@@ -13,7 +13,7 @@ const Header: FC = () => {
 
   return (
     <HeaderStyled>
-      <Link to="/home">
+      <Link to="/work-spaces">
         <Logo>Kanban</Logo>
       </Link>
 

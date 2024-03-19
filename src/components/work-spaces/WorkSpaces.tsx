@@ -47,7 +47,6 @@ const WorkSpaces: FC = () => {
   useEffect(() => {
     if (!updatedWorkSpace?.data) return;
 
-    setActiveWorkSpace(undefined);
     onModalClose();
     refetch();
   }, [updatedWorkSpace, refetch]);
@@ -73,7 +72,10 @@ const WorkSpaces: FC = () => {
     deleteWorkSpace(id);
   };
 
-  const onModalClose = () => setIsOpenModal(false);
+  const onModalClose = () => {
+    setActiveWorkSpace(undefined);
+    setIsOpenModal(false);
+  };
 
   const onCreateNewSpace = (formValues: IWorkSpaceFormValues) => {
     createNewWorkSpace(formValues);

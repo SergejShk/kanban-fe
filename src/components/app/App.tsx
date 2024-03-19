@@ -5,7 +5,7 @@ import SharedLayout from '../common/SharedLayout';
 import Public from '../routes/Public';
 import Private from '../routes/Private';
 
-import { Home, Login, SignUp } from './pages';
+import { WorkSpaces, Boards, Login, SignUp } from './pages';
 
 export const router = createBrowserRouter([
   {
@@ -23,7 +23,11 @@ export const router = createBrowserRouter([
       },
       {
         path: 'work-spaces',
-        element: <Private component={Home} />,
+        element: <Private component={WorkSpaces} />,
+      },
+      {
+        path: 'work-spaces/:workSpaceId',
+        element: <Private component={Boards} />,
       },
     ],
   },
