@@ -1,15 +1,40 @@
 import { FC } from 'react';
 import styled from 'styled-components';
 
-const BoardsList: FC = () => {
+import Loader from '../common/Loader';
+
+import { IBoard } from '../../interfaces/boards';
+import Actions from '../common/Actions';
+
+interface IProps {
+  boards: IBoard[];
+  isLoading: boolean;
+  handleEditBoardClick: (id: number) => void;
+  handleDeleteBoardClick: (id: number) => void;
+}
+
+const BoardsList: FC<IProps> = ({
+  boards,
+  isLoading,
+  handleEditBoardClick,
+  handleDeleteBoardClick,
+}) => {
   return (
     <BoardsListStyled>
-      <BoardItem>1</BoardItem>
-      <BoardItem>2</BoardItem>
-      <BoardItem>3</BoardItem>
-      <BoardItem>4</BoardItem>
-      <BoardItem>5</BoardItem>
-      <BoardItem>6</BoardItem>
+      {isLoading && <Loader />}
+
+      {!!boards.length &&
+        !isLoading &&
+        boards.map(board => (
+          <BoardItem key={board.id}>
+            {board.name}
+            <Actions
+              cardId={board.id}
+              handleEditClick={handleEditBoardClick}
+              handleDeletelick={handleDeleteBoardClick}
+            />
+          </BoardItem>
+        ))}
     </BoardsListStyled>
   );
 };
@@ -26,6 +51,7 @@ const BoardsListStyled = styled.ul`
 `;
 
 const BoardItem = styled.li`
+  position: relative;
   width: 300px;
   min-height: 500px;
   display: flex;

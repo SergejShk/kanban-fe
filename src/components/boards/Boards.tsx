@@ -2,14 +2,16 @@ import { FC, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
 
-import CardsList from './BoardsList';
+import BoardsList from './BoardsList';
 import BoardForm from './BoardForm';
 
 import { Button } from '../common/Button';
 import Modal from '../common/Modal';
 
-import { IBoard, IBoardFormValues } from '../../interfaces/boards';
 import { useCreateBoard } from '../../hooks/services/boards/useCreateBoard';
+import { useBoardsList } from '../../hooks/services/boards/useBoardsList';
+
+import { IBoard, IBoardFormValues } from '../../interfaces/boards';
 
 const Boards: FC = () => {
   const params = useParams();
@@ -24,13 +26,18 @@ const Boards: FC = () => {
     isPending: isPendingNewBoard,
     error: errorNewBoard,
   } = useCreateBoard();
-
+  const {
+    data: boards,
+    isFetching,
+    refetch,
+  } = useBoardsList(Number(workSpaceId));
+  console.log(boards?.data);
   useEffect(() => {
     if (!newBoard?.data) return;
 
     onModalClose();
-    // refetch();
-  }, [newBoard]);
+    refetch();
+  }, [newBoard, refetch]);
 
   const onCreateBoardClick = () => setIsOpenModal(true);
 
@@ -47,13 +54,28 @@ const Boards: FC = () => {
     console.log(formValues);
   };
 
+  const onEditBoardClick = (id: number) => {
+    const selectedBoard = boards?.data.find(workSpace => workSpace.id === id);
+    setActiveBoard(selectedBoard);
+    setIsOpenModal(true);
+  };
+
+  const onDeleteBoardClick = (id: number) => {
+    console.log(id);
+  };
+
   return (
     <>
       <BoardsStyled>
         <Button type="button" onClick={onCreateBoardClick}>
           Create board
         </Button>
-        <CardsList />
+        <BoardsList
+          boards={boards?.data || []}
+          isLoading={isFetching}
+          handleEditBoardClick={onEditBoardClick}
+          handleDeleteBoardClick={onDeleteBoardClick}
+        />
       </BoardsStyled>
 
       {isOpenModal && (
