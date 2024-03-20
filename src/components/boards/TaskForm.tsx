@@ -10,7 +10,7 @@ import { ITask, ITaskFormValues } from '../../interfaces/tasks';
 
 interface IProps {
   initialTask?: ITask;
-  isLoading: boolean;
+  isLoading?: boolean;
   error?: string;
   handleSaveClick: (formValues: ITaskFormValues) => void;
   handleCancelClick: () => void;
@@ -18,7 +18,7 @@ interface IProps {
 
 const TaskForm: FC<IProps> = ({
   initialTask,
-  isLoading,
+  isLoading = false,
   error,
   handleSaveClick,
   handleCancelClick,

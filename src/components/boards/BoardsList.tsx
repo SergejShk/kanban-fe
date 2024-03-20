@@ -10,23 +10,19 @@ import TaskForm from './TaskForm';
 
 import { updateTasksApi } from '../../services/tasks/updateTasks';
 
-import { useCreateTask } from '../../hooks/services/tasks/useCreateTask';
-
 import { IBoard } from '../../interfaces/boards';
 import { ITask, ITaskFormValues } from '../../interfaces/tasks';
 
 interface IProps {
   boards: IBoard[];
-  isLoading: boolean;
-  refetch: () => void;
+  isLoading?: boolean;
   handleEditBoardClick: (id: number) => void;
   handleDeleteBoardClick: (id: number) => void;
 }
 
 const BoardsList: FC<IProps> = ({
   boards,
-  isLoading,
-  refetch,
+  isLoading = false,
   handleEditBoardClick,
   handleDeleteBoardClick,
 }) => {
@@ -37,23 +33,9 @@ const BoardsList: FC<IProps> = ({
   const [currentBoard, setCurrentBoard] = useState<IBoard | null>(null);
   const [currentTask, setCurrentTask] = useState<ITask | null>(null);
 
-  const {
-    mutate: createNewTask,
-    data: newTask,
-    isPending: isPendingNewTask,
-    error: errorNewTask,
-  } = useCreateTask();
-
   useEffect(() => {
     setBoardsList(boards);
   }, [boards]);
-
-  useEffect(() => {
-    if (!newTask?.data) return;
-
-    onModalClose();
-    refetch();
-  }, [newTask, refetch]);
 
   const onCreateTaskClick = () => setIsOpenModal(true);
 
@@ -76,7 +58,23 @@ const BoardsList: FC<IProps> = ({
       tasks: [...currentTasks, newTask],
     };
 
-    createNewTask(body);
+    updateTasksApi(body)
+      .then(() => {
+        setBoardsList(prev =>
+          prev.map((board, idx) => {
+            if (idx === 0) {
+              return {
+                ...board,
+                tasks: [...currentTasks, newTask],
+              };
+            }
+
+            return board;
+          })
+        );
+        onModalClose();
+      })
+      .catch(err => console.log(err));
   };
 
   const updateItemsListOnSameCard = (tasksList: ITask[], task: ITask) => {
@@ -324,8 +322,6 @@ const BoardsList: FC<IProps> = ({
         <Modal handleModalClose={onModalClose}>
           <TaskForm
             initialTask={activeTask}
-            isLoading={isPendingNewTask}
-            error={errorNewTask?.response?.data}
             handleSaveClick={activeTask ? onUpdateTask : onCreateTask}
             handleCancelClick={onModalClose}
           />

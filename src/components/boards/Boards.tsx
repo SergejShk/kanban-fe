@@ -107,7 +107,6 @@ const Boards: FC = () => {
           isLoading={isFetching || isPendingDeleteBoard}
           handleEditBoardClick={onEditBoardClick}
           handleDeleteBoardClick={onDeleteBoardClick}
-          refetch={refetch}
         />
       </BoardsStyled>
 
