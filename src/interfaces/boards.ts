@@ -1,8 +1,11 @@
+import { ITask } from './tasks';
+
 export interface IBoard {
   id: number;
   name: string;
   createdAt: Date;
   workSpaceId: number;
+  tasks: ITask[];
 }
 
 export interface INewBoardBody {

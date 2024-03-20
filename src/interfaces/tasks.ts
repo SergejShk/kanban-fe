@@ -1,13 +1,16 @@
 export interface ITask {
-  id: number;
-  index: number;
+  id: string;
   name: string;
   description: string;
-  createdAt: Date;
-  boardId: number;
 }
 
 export interface ITaskFormValues {
   name: string;
   description: string;
+}
+
+export interface IBoardTasks {
+  id?: number;
+  boardId: number;
+  tasks: ITask[];
 }

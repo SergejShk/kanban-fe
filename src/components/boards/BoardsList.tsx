@@ -1,4 +1,5 @@
-import { FC, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 import styled from 'styled-components';
 
 import Loader from '../common/Loader';
@@ -9,6 +10,7 @@ import TaskForm from './TaskForm';
 
 import { IBoard } from '../../interfaces/boards';
 import { ITask, ITaskFormValues } from '../../interfaces/tasks';
+import { useCreateTask } from '../../hooks/services/tasks/useCreateTask';
 
 interface IProps {
   boards: IBoard[];
@@ -26,6 +28,20 @@ const BoardsList: FC<IProps> = ({
   const [isOpenModal, setIsOpenModal] = useState(false);
   const [activeTask, setActiveTask] = useState<ITask | undefined>(undefined);
 
+  const {
+    mutate: createNewTask,
+    data: newTask,
+    isPending: isPendingNewTask,
+    error: errorNewTask,
+  } = useCreateTask();
+
+  useEffect(() => {
+    if (!newTask?.data) return;
+
+    onModalClose();
+    // refetch();
+  }, [newTask]);
+
   const onCreateTaskClick = () => setIsOpenModal(true);
 
   const onModalClose = () => {
@@ -34,9 +50,19 @@ const BoardsList: FC<IProps> = ({
   };
 
   const onCreateTask = (formValues: ITaskFormValues) => {
-    console.log(formValues);
-    // if (!workSpaceId || Number.isNaN(workSpaceId)) return;
-    // createNewBoard({ ...formValues, workSpaceId: Number(workSpaceId) });
+    const board = boards[0];
+
+    const newTask = {
+      id: uuidv4(),
+      ...formValues,
+    };
+    const currentTasks = board.tasks || [];
+    const body = {
+      boardId: board.id,
+      tasks: [...currentTasks, newTask],
+    };
+
+    createNewTask(body);
   };
 
   return (
@@ -71,10 +97,8 @@ const BoardsList: FC<IProps> = ({
         <Modal handleModalClose={onModalClose}>
           <TaskForm
             initialTask={activeTask}
-            isLoading={false}
-            // error={
-            //   errorNewBoard?.response?.data || errorUpdateBoard?.response?.data
-            // }
+            isLoading={isPendingNewTask}
+            error={errorNewTask?.response?.data}
             // handleSaveClick={activeBoard ? onUpdateBoard : onCreateBoard}
             handleSaveClick={onCreateTask}
             handleCancelClick={onModalClose}
