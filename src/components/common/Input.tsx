@@ -7,6 +7,8 @@ import {
 } from 'react-hook-form';
 import styled from 'styled-components';
 
+import { ErrorText } from './ErrorText';
+
 type InputProps<TFormValues extends FieldValues> = {
   name: Path<TFormValues>;
   type: string;
@@ -90,13 +92,4 @@ const InputStyled = styled.input`
   &:disabled:focus {
     border-color: #6b7fca;
   }
-`;
-
-const ErrorText = styled.span`
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  bottom: -15px;
-  font-size: 10px;
-  color: #e73f3f;
 `;

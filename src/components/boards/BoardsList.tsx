@@ -1,10 +1,14 @@
-import { FC } from 'react';
+import { FC, useState } from 'react';
 import styled from 'styled-components';
 
 import Loader from '../common/Loader';
+import Actions from '../common/Actions';
+import Modal from '../common/Modal';
+
+import TaskForm from './TaskForm';
 
 import { IBoard } from '../../interfaces/boards';
-import Actions from '../common/Actions';
+import { ITask, ITaskFormValues } from '../../interfaces/tasks';
 
 interface IProps {
   boards: IBoard[];
@@ -19,25 +23,65 @@ const BoardsList: FC<IProps> = ({
   handleEditBoardClick,
   handleDeleteBoardClick,
 }) => {
-  return (
-    <BoardsListStyled>
-      {isLoading && <Loader />}
+  const [isOpenModal, setIsOpenModal] = useState(false);
+  const [activeTask, setActiveTask] = useState<ITask | undefined>(undefined);
 
-      {!!boards.length &&
-        !isLoading &&
-        boards.map(board => (
-          <BoardItem key={board.id}>
-            <BoardTitle>{board.name}</BoardTitle>
-            <BoardContent>
-              <Actions
-                cardId={board.id}
-                handleEditClick={handleEditBoardClick}
-                handleDeletelick={handleDeleteBoardClick}
-              />
-            </BoardContent>
-          </BoardItem>
-        ))}
-    </BoardsListStyled>
+  const onCreateTaskClick = () => setIsOpenModal(true);
+
+  const onModalClose = () => {
+    setActiveTask(undefined);
+    setIsOpenModal(false);
+  };
+
+  const onCreateTask = (formValues: ITaskFormValues) => {
+    console.log(formValues);
+    // if (!workSpaceId || Number.isNaN(workSpaceId)) return;
+    // createNewBoard({ ...formValues, workSpaceId: Number(workSpaceId) });
+  };
+
+  return (
+    <>
+      <BoardsListStyled>
+        {isLoading && <Loader />}
+
+        {!!boards.length &&
+          !isLoading &&
+          boards.map((board, idx) => (
+            <BoardItem key={board.id}>
+              <BoardTitle>{board.name}</BoardTitle>
+              <BoardContent>
+                {idx === 0 && (
+                  <CreateTaskButton type="button" onClick={onCreateTaskClick}>
+                    <svg width="50" height="50">
+                      <use xlinkHref="/icons/sprite.svg#plus" />
+                    </svg>
+                  </CreateTaskButton>
+                )}
+                <Actions
+                  cardId={board.id}
+                  handleEditClick={handleEditBoardClick}
+                  handleDeletelick={handleDeleteBoardClick}
+                />
+              </BoardContent>
+            </BoardItem>
+          ))}
+      </BoardsListStyled>
+
+      {isOpenModal && (
+        <Modal handleModalClose={onModalClose}>
+          <TaskForm
+            initialTask={activeTask}
+            isLoading={false}
+            // error={
+            //   errorNewBoard?.response?.data || errorUpdateBoard?.response?.data
+            // }
+            // handleSaveClick={activeBoard ? onUpdateBoard : onCreateBoard}
+            handleSaveClick={onCreateTask}
+            handleCancelClick={onModalClose}
+          />
+        </Modal>
+      )}
+    </>
   );
 };
 
@@ -75,4 +119,14 @@ const BoardContent = styled.div`
   border-radius: 4px;
   background-color: #fff;
   padding: 20px 20px 50px;
+`;
+
+const CreateTaskButton = styled.button`
+  width: 100%;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  border: 1px solid #6b7fca;
 `;

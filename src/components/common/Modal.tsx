@@ -38,7 +38,7 @@ const Modal: FC<IProps> = ({ children, handleModalClose }) => {
   return (
     <Portal>
       <Backdrop onClick={onBackdropClick}>
-        <ModalStyled onClick={onBackdropClick}>
+        <ModalStyled>
           {children}
           <ButtonClose type="button" onClick={handleModalClose}>
             <svg width="20" height="20">

@@ -77,6 +77,7 @@ const Boards: FC = () => {
     if (!workSpaceId || Number.isNaN(workSpaceId)) return;
     createNewBoard({ ...formValues, workSpaceId: Number(workSpaceId) });
   };
+
   const onUpdateBoard = (formValues: IBoardFormValues) => {
     const workSpaceIdNumber = Number(workSpaceId);
     if (!activeBoard || !workSpaceIdNumber) return;
