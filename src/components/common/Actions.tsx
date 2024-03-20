@@ -3,11 +3,21 @@ import styled from 'styled-components';
 
 interface IProps {
   cardId: number;
+  editIconSize?: string;
+  deleteIconSize?: string;
+  positionBottom?: string;
   handleEditClick: (cardId: number) => void;
   handleDeletelick: (cardId: number) => void;
 }
 
-const Actions: FC<IProps> = ({ cardId, handleEditClick, handleDeletelick }) => {
+const Actions: FC<IProps> = ({
+  cardId,
+  editIconSize,
+  deleteIconSize,
+  positionBottom,
+  handleEditClick,
+  handleDeletelick,
+}) => {
   const onActionClick = (e: MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     e.stopPropagation();
@@ -25,14 +35,14 @@ const Actions: FC<IProps> = ({ cardId, handleEditClick, handleDeletelick }) => {
   };
 
   return (
-    <ActionsStyled>
+    <ActionsStyled $positionBottom={positionBottom}>
       <button type="button" name="edit" onClick={onActionClick}>
-        <svg width="22" height="22">
+        <svg width={editIconSize || '22'} height={editIconSize || '22'}>
           <use xlinkHref="/icons/sprite.svg#pencil" />
         </svg>
       </button>
       <button type="button" name="delete" onClick={onActionClick}>
-        <svg width="24" height="24">
+        <svg width={deleteIconSize || '24'} height={deleteIconSize || '24'}>
           <use xlinkHref="/icons/sprite.svg#trash" />
         </svg>
       </button>
@@ -42,9 +52,9 @@ const Actions: FC<IProps> = ({ cardId, handleEditClick, handleDeletelick }) => {
 
 export default Actions;
 
-const ActionsStyled = styled.div`
+const ActionsStyled = styled.div<{ $positionBottom?: string }>`
   position: absolute;
-  bottom: 10px;
+  bottom: ${({ $positionBottom }) => $positionBottom || '10px'};
   right: 10px;
   z-index: 1;
   display: flex;

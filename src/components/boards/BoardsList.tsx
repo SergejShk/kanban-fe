@@ -33,6 +33,7 @@ const BoardsList: FC<IProps> = ({
   const [boardsList, setBoardsList] = useState<IBoard[]>([]);
   const [isOpenModal, setIsOpenModal] = useState(false);
   const [activeTask, setActiveTask] = useState<ITask | undefined>(undefined);
+  const [activeBoardId, setActiveBoardId] = useState(0);
   const [currentBoard, setCurrentBoard] = useState<IBoard | null>(null);
   const [currentTask, setCurrentTask] = useState<ITask | null>(null);
 
@@ -58,11 +59,12 @@ const BoardsList: FC<IProps> = ({
 
   const onModalClose = () => {
     setActiveTask(undefined);
+    setActiveBoardId(0);
     setIsOpenModal(false);
   };
 
   const onCreateTask = (formValues: ITaskFormValues) => {
-    const board = boards[0];
+    const board = boardsList[0];
 
     const newTask = {
       id: uuidv4(),
@@ -193,6 +195,47 @@ const BoardsList: FC<IProps> = ({
     e.preventDefault();
   };
 
+  const handleEditTaskClick = (boardId: number, taskId: string) => {
+    const [selectedBoard] = boardsList.filter(board => board.id === boardId);
+    const [selectedTask] = selectedBoard.tasks.filter(
+      task => task.id === taskId
+    );
+
+    setActiveTask(selectedTask);
+    setActiveBoardId(boardId);
+    setIsOpenModal(true);
+  };
+
+  const onUpdateTask = (formValues: ITaskFormValues) => {
+    if (!activeTask) return;
+
+    let body;
+
+    const updatedBoardsList = boardsList.map(board => {
+      if (board.id !== activeBoardId) return board;
+
+      const updatedTasks = board.tasks.map(task => {
+        if (task.id !== activeTask.id) return task;
+        const tasks = {
+          ...task,
+          ...formValues,
+        };
+        return tasks;
+      });
+
+      body = { boardId: board.id, tasks: updatedTasks };
+      return { ...board, tasks: updatedTasks };
+    });
+
+    body &&
+      updateTasksApi(body)
+        .then(() => {
+          setBoardsList(updatedBoardsList);
+          onModalClose();
+        })
+        .catch(err => console.log(err));
+  };
+
   return (
     <>
       <BoardsListStyled>
@@ -224,6 +267,16 @@ const BoardsList: FC<IProps> = ({
                         <TaskDescription className="task">
                           {task.description}
                         </TaskDescription>
+                        <Actions
+                          cardId={board.id}
+                          editIconSize="16"
+                          deleteIconSize="18"
+                          positionBottom="0px"
+                          handleEditClick={() =>
+                            handleEditTaskClick(board.id, task.id)
+                          }
+                          handleDeletelick={handleDeleteBoardClick}
+                        />
                       </TaskItem>
                     ))}
                 </TasksList>
@@ -251,8 +304,7 @@ const BoardsList: FC<IProps> = ({
             initialTask={activeTask}
             isLoading={isPendingNewTask}
             error={errorNewTask?.response?.data}
-            // handleSaveClick={activeBoard ? onUpdateBoard : onCreateBoard}
-            handleSaveClick={onCreateTask}
+            handleSaveClick={activeTask ? onUpdateTask : onCreateTask}
             handleCancelClick={onModalClose}
           />
         </Modal>
@@ -315,6 +367,7 @@ const TasksList = styled.ul`
 `;
 
 const TaskItem = styled.li`
+  position: relative;
   cursor: grab;
   min-height: 70px;
   display: flex;
