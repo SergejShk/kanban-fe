@@ -8,6 +8,8 @@ import Modal from '../common/Modal';
 
 import TaskForm from './TaskForm';
 
+import { updateTasksApi } from '../../services/tasks/updateTasks';
+
 import { useCreateTask } from '../../hooks/services/tasks/useCreateTask';
 
 import { IBoard } from '../../interfaces/boards';
@@ -28,8 +30,11 @@ const BoardsList: FC<IProps> = ({
   handleEditBoardClick,
   handleDeleteBoardClick,
 }) => {
+  const [boardsList, setBoardsList] = useState<IBoard[]>([]);
   const [isOpenModal, setIsOpenModal] = useState(false);
   const [activeTask, setActiveTask] = useState<ITask | undefined>(undefined);
+  const [currentBoard, setCurrentBoard] = useState<IBoard | null>(null);
+  const [currentTask, setCurrentTask] = useState<ITask | null>(null);
 
   const {
     mutate: createNewTask,
@@ -37,6 +42,10 @@ const BoardsList: FC<IProps> = ({
     isPending: isPendingNewTask,
     error: errorNewTask,
   } = useCreateTask();
+
+  useEffect(() => {
+    setBoardsList(boards);
+  }, [boards]);
 
   useEffect(() => {
     if (!newTask?.data) return;
@@ -67,24 +76,154 @@ const BoardsList: FC<IProps> = ({
 
     createNewTask(body);
   };
-  console.log(boards);
+
+  const updateItemsListOnSameCard = (tasksList: ITask[], task: ITask) => {
+    return tasksList.map(it => {
+      if (currentTask && it.id === task.id) {
+        return currentTask;
+      }
+      if (currentTask && it.id === currentTask.id) {
+        return task;
+      }
+      return it;
+    });
+  };
+
+  const replaceItems = (
+    tasksList: ITask[],
+    itemAdd: ITask,
+    itemDelete: ITask
+  ) => {
+    return tasksList.map(it => {
+      if (it.id === itemDelete.id) {
+        return itemAdd;
+      }
+      return it;
+    });
+  };
+
+  const handleDragStart = (board: IBoard, task: ITask) => {
+    setCurrentBoard(board);
+    setCurrentTask(task);
+  };
+
+  const handleDropItem = async (
+    e: React.DragEvent<HTMLLIElement>,
+    board: IBoard,
+    task: ITask
+  ) => {
+    e.preventDefault();
+    if (!currentBoard || !currentTask) return;
+
+    const updatedBoards = async () => {
+      return await Promise.all(
+        boardsList.map(async b => {
+          if (b.id === board.id && b.id === currentBoard.id) {
+            const updatedItems = updateItemsListOnSameCard(b.tasks, task);
+            await updateTasksApi({ boardId: b.id, tasks: updatedItems });
+            return { ...b, tasks: updatedItems };
+          }
+          if (b.id === board.id && b.id !== currentBoard.id) {
+            const updatedItems = replaceItems(b.tasks, currentTask, task);
+            await updateTasksApi({ boardId: b.id, tasks: updatedItems });
+            return { ...b, tasks: updatedItems };
+          }
+          if (b.id !== board.id && b.id === currentBoard.id) {
+            const updatedItems = replaceItems(b.tasks, task, currentTask);
+            await updateTasksApi({ boardId: b.id, tasks: updatedItems });
+            return { ...b, tasks: updatedItems };
+          }
+
+          return b;
+        })
+      );
+    };
+
+    try {
+      const newBoards = await updatedBoards();
+      setBoardsList(newBoards);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleDropBoard = async (
+    e: React.DragEvent<HTMLLIElement>,
+    board: IBoard
+  ) => {
+    e.preventDefault();
+
+    if (!currentBoard || !currentTask) return;
+
+    const target = e.target as HTMLElement;
+    if (target.classList.contains('task')) return;
+
+    board.tasks.push(currentTask);
+    const currentItemIndex = currentBoard.tasks.indexOf(currentTask);
+    currentBoard.tasks.splice(currentItemIndex, 1);
+
+    const updatedBoards = async () => {
+      return await Promise.all(
+        boardsList.map(async b => {
+          if (b.id === board.id) {
+            await updateTasksApi({ boardId: board.id, tasks: board.tasks });
+            return board;
+          }
+          if (b.id === currentBoard.id) {
+            await updateTasksApi({
+              boardId: currentBoard.id,
+              tasks: currentBoard.tasks,
+            });
+            return currentBoard;
+          }
+          return b;
+        })
+      );
+    };
+
+    try {
+      const newBoards = await updatedBoards();
+      setBoardsList(newBoards);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLLIElement>) => {
+    e.preventDefault();
+  };
+
   return (
     <>
       <BoardsListStyled>
         {isLoading && <Loader />}
 
-        {!!boards.length &&
+        {!!boardsList.length &&
           !isLoading &&
-          boards.map((board, idx) => (
-            <BoardItem key={board.id}>
+          boardsList.map((board, idx) => (
+            <BoardItem
+              key={board.id}
+              onDrop={e => handleDropBoard(e, board)}
+              onDragOver={handleDragOver}
+            >
               <BoardTitle>{board.name}</BoardTitle>
               <BoardContent>
                 <TasksList>
                   {board.tasks.length > 0 &&
                     board.tasks.map(task => (
-                      <TaskItem key={task.id}>
-                        <TaskTitle>{task.name}</TaskTitle>
-                        <TaskDescription>{task.description}</TaskDescription>
+                      <TaskItem
+                        key={task.id}
+                        id={task.id}
+                        className="task"
+                        draggable={true}
+                        onDragStart={() => handleDragStart(board, task)}
+                        onDrop={e => handleDropItem(e, board, task)}
+                        onDragOver={handleDragOver}
+                      >
+                        <TaskTitle className="task">{task.name}</TaskTitle>
+                        <TaskDescription className="task">
+                          {task.description}
+                        </TaskDescription>
                       </TaskItem>
                     ))}
                 </TasksList>
