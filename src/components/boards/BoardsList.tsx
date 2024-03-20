@@ -353,6 +353,9 @@ const BoardTitle = styled.p`
   font-size: 22px;
   font-weight: 500;
   text-align: center;
+  white-space: pre-line;
+  word-break: break-word;
+  overflow-y: auto;
 `;
 
 const BoardContent = styled.div`

@@ -31,9 +31,12 @@ const WorkSpaceList: FC<IProps> = ({
         workSpaces.map(workSpace => (
           <WorkSpaceItem key={workSpace.id}>
             <Card to={`${workSpace.id}`}>
-              {workSpace.name}
+              <CardTitle>{workSpace.name}</CardTitle>
               <Actions
                 cardId={workSpace.id}
+                editIconSize="18"
+                deleteIconSize="20"
+                positionBottom="5px"
                 handleEditClick={handleEditSpaceClick}
                 handleDeletelick={handleDeleteSpaceClick}
               />
@@ -64,6 +67,7 @@ const WorkSpaceListStyled = styled.ul`
 `;
 
 const WorkSpaceItem = styled.li`
+  position: relative;
   flex-basis: calc((100% - 45px - 8px) / 4); // 100% - gap - borders
   height: 150px;
   display: flex;
@@ -74,16 +78,22 @@ const WorkSpaceItem = styled.li`
 `;
 
 const Card = styled(Link)`
-  position: relative;
   width: calc(100% - 20px);
-  height: calc(100% - 20px);
-  padding: 10px;
+  height: calc(100% - 40px);
+  padding: 10px 10px 30px;
   color: #484848;
   font-size: 18px;
   font-weight: 500;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  white-space: pre-line;
+  word-break: break-word;
+  overflow-y: auto;
+`;
+
+const CardTitle = styled.p`
+  white-space: pre-line;
+  word-break: break-word;
+  overflow-y: auto;
 `;
 
 const ButtonCard = styled.button`
