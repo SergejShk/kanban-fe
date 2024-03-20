@@ -8,13 +8,15 @@ import Modal from '../common/Modal';
 
 import TaskForm from './TaskForm';
 
+import { useCreateTask } from '../../hooks/services/tasks/useCreateTask';
+
 import { IBoard } from '../../interfaces/boards';
 import { ITask, ITaskFormValues } from '../../interfaces/tasks';
-import { useCreateTask } from '../../hooks/services/tasks/useCreateTask';
 
 interface IProps {
   boards: IBoard[];
   isLoading: boolean;
+  refetch: () => void;
   handleEditBoardClick: (id: number) => void;
   handleDeleteBoardClick: (id: number) => void;
 }
@@ -22,6 +24,7 @@ interface IProps {
 const BoardsList: FC<IProps> = ({
   boards,
   isLoading,
+  refetch,
   handleEditBoardClick,
   handleDeleteBoardClick,
 }) => {
@@ -39,8 +42,8 @@ const BoardsList: FC<IProps> = ({
     if (!newTask?.data) return;
 
     onModalClose();
-    // refetch();
-  }, [newTask]);
+    refetch();
+  }, [newTask, refetch]);
 
   const onCreateTaskClick = () => setIsOpenModal(true);
 
@@ -64,7 +67,7 @@ const BoardsList: FC<IProps> = ({
 
     createNewTask(body);
   };
-
+  console.log(boards);
   return (
     <>
       <BoardsListStyled>
@@ -76,6 +79,16 @@ const BoardsList: FC<IProps> = ({
             <BoardItem key={board.id}>
               <BoardTitle>{board.name}</BoardTitle>
               <BoardContent>
+                <TasksList>
+                  {board.tasks.length > 0 &&
+                    board.tasks.map(task => (
+                      <TaskItem key={task.id}>
+                        <TaskTitle>{task.name}</TaskTitle>
+                        <TaskDescription>{task.description}</TaskDescription>
+                      </TaskItem>
+                    ))}
+                </TasksList>
+
                 {idx === 0 && (
                   <CreateTaskButton type="button" onClick={onCreateTaskClick}>
                     <svg width="50" height="50">
@@ -115,7 +128,6 @@ const BoardsListStyled = styled.ul`
   width: 100%;
   display: flex;
   gap: 15px;
-  align-items: center;
   overflow-x: scroll;
   padding: 15px 0;
 `;
@@ -140,6 +152,7 @@ const BoardContent = styled.div`
   min-height: 500px;
   display: flex;
   flex-direction: column;
+  gap: 5px;
   border-radius: 4px;
   background-color: #fff;
   padding: 20px 20px 50px;
@@ -153,4 +166,34 @@ const CreateTaskButton = styled.button`
   justify-content: center;
   border-radius: 4px;
   border: 1px solid #6b7fca;
+`;
+
+const TasksList = styled.ul`
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  width: 100%;
+`;
+
+const TaskItem = styled.li`
+  cursor: grab;
+  min-height: 70px;
+  display: flex;
+  flex-direction: column;
+  border-radius: 4px;
+  border: 1px solid #6b7fca;
+  padding: 5px;
+`;
+
+const TaskTitle = styled.p`
+  font-size: 18px;
+  font-weight: 500;
+  white-space: pre-line;
+  word-break: break-word;
+`;
+
+const TaskDescription = styled.p`
+  font-size: 14px;
+  white-space: pre-line;
+  word-break: break-word;
 `;
