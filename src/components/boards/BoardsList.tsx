@@ -236,6 +236,26 @@ const BoardsList: FC<IProps> = ({
         .catch(err => console.log(err));
   };
 
+  const onDeleteTaskClick = (boardId: number, taskId: string) => {
+    let body;
+    const updatedBoardsList = boardsList.map(board => {
+      if (board.id !== boardId) return board;
+
+      const updatedTasks = board.tasks.filter(task => task.id !== taskId);
+
+      body = { boardId: board.id, tasks: updatedTasks };
+      return { ...board, tasks: updatedTasks };
+    });
+
+    body &&
+      updateTasksApi(body)
+        .then(() => {
+          setBoardsList(updatedBoardsList);
+          onModalClose();
+        })
+        .catch(err => console.log(err));
+  };
+
   return (
     <>
       <BoardsListStyled>
@@ -275,7 +295,9 @@ const BoardsList: FC<IProps> = ({
                           handleEditClick={() =>
                             handleEditTaskClick(board.id, task.id)
                           }
-                          handleDeletelick={handleDeleteBoardClick}
+                          handleDeletelick={() =>
+                            onDeleteTaskClick(board.id, task.id)
+                          }
                         />
                       </TaskItem>
                     ))}
