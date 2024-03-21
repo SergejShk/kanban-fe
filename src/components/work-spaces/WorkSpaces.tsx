@@ -2,8 +2,9 @@ import { FC, useEffect, useState } from 'react';
 import styled from 'styled-components';
 
 import WorkSpaceList from './WorkSpaceList';
-import Modal from '../common/Modal';
 import WorkSpaceForm from './WorkSpaceForm';
+import Modal from '../common/Modal';
+import SearchForm from '../common/SearchForm';
 
 import { useCreateWorkSpace } from '../../hooks/services/work-spaces/useCreateWorkSpace';
 import { useWorkSpacesList } from '../../hooks/services/work-spaces/useWorkSpacesList';
@@ -13,6 +14,7 @@ import { useDeleteWorkSpace } from '../../hooks/services/work-spaces/useDeleteWo
 import { IWorkSpace, IWorkSpaceFormValues } from '../../interfaces/workSpaces';
 
 const WorkSpaces: FC = () => {
+  const [query, setQuery] = useState('');
   const [isOpenModal, setIsOpenModal] = useState(false);
   const [activeWorkSpace, setActiveWorkSpace] = useState<
     IWorkSpace | undefined
@@ -24,7 +26,7 @@ const WorkSpaces: FC = () => {
     isPending: isPendingNewWorkSpace,
     error: errorNewWorkSpace,
   } = useCreateWorkSpace();
-  const { data: workSpaces, isFetching, refetch } = useWorkSpacesList();
+  const { data: workSpaces, isFetching, refetch } = useWorkSpacesList(query);
   const {
     mutate: updateWorkSpace,
     data: updatedWorkSpace,
@@ -90,6 +92,8 @@ const WorkSpaces: FC = () => {
   return (
     <>
       <WorkSpacesStyled>
+        <SearchForm setQuery={setQuery} />
+
         <WorkSpaceList
           workSpaces={workSpaces?.data || []}
           isLoading={isFetching || isPendingDeleteWorkSpace}
